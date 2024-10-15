@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Printer Web GUI</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-bottom: 2px solid #333;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      padding: 20px;
+    }
+
+    .control-panel, .camera-feed, .status-panel {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 10px;
+      flex-basis: 300px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .control-panel h2, .camera-feed h2, .status-panel h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .control-panel button {
+      background-color: #3a3a3a;
+      border: none;
+      color: white;
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .control-panel button:hover {
+      background-color: #555;
+    }
+
+    .status-panel p {
+      margin: 10px 0;
+    }
+
+    .status-value {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .camera-feed img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-top: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>3D Printer Control Panel</h1>
+  </div>
+
+  <div class="container">
+    
+    <!-- Control Panel -->
+    <div class="control-panel">
+      <h2>Control</h2>
+      <button onclick="startPrint()">Start Print</button>
+      <button onclick="pausePrint()">Pause Print</button>
+      <button onclick="stopPrint()">Stop Print</button>
+    </div>
+    
+    <!-- Camera Feed -->
+    <div class="camera-feed">
+      <h2>Camera Feed</h2>
+      <img src="https://via.placeholder.com/300x200.png?text=Live+Feed" alt="Camera Feed" id="camera-feed">
+    </div>
+    
+    <!-- Status Panel -->
+    <div class="status-panel">
+      <h2>Status</h2>
+      <p>Bed Temperature: <span class="status-value" id="bed-temp">0°C</span></p>
+      <p>Hotend Temperature: <span class="status-value" id="hotend-temp">0°C</span></p>
+      <p>Print Progress: <span class="status-value" id="print-progress">0%</span></p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2024 Custom 3D Printer Web GUI</p>
+  </div>
+
+  <script>
+    // Simulate starting a print
+    function startPrint() {
+      alert('Print started!');
+      // Here you'd send a request to the 3D printer API
+      document.getElementById('print-progress').textContent = '0%';
+      simulateProgress();
+    }
+
+    // Simulate pausing a print
+    function pausePrint() {
+      alert('Print paused!');
+      // Send pause command to the printer
+    }
+
+    // Simulate stopping a print
+    function stopPrint() {
+      alert('Print stopped!');
+      // Send stop command to the printer
+      document.getElementById('print-progress').textContent = '0%';
+    }
+
+    // Simulate temperature and print progress updates
+    function simulateProgress() {
+      let progress = 0;
+      let bedTemp = 20;
+      let hotendTemp = 20;
+      
+      const progressInterval = setInterval(() => {
+        if (progress >= 100) {
+          clearInterval(progressInterval);
+        } else {
+          progress += 10;
+          bedTemp += 2;
+          hotendTemp += 5;
+          
+          document.getElementById('print-progress').textContent = progress + '%';
+          document.getElementById('bed-temp').textContent = bedTemp + '°C';
+          document.getElementById('hotend-temp').textContent = hotendTemp + '°C';
+        }
+      }, 1000);
+    }
+  </script>
+
+</body>
+</html>
