@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Printer Web GUI</title>
+  <title>3D Printer Web GUI with Live Camera Feed</title>
   <style>
     body {
       margin: 0;
@@ -70,7 +70,7 @@
       font-weight: bold;
     }
 
-    .camera-feed img {
+    .camera-feed video {
       width: 100%;
       border-radius: 8px;
     }
@@ -102,7 +102,7 @@
     <!-- Camera Feed -->
     <div class="camera-feed">
       <h2>Camera Feed</h2>
-      <img src="https://via.placeholder.com/300x200.png?text=Live+Feed" alt="Camera Feed" id="camera-feed">
+      <video id="camera-feed" autoplay playsinline></video>
     </div>
     
     <!-- Status Panel -->
@@ -119,10 +119,30 @@
   </div>
 
   <script>
+    // Access the user's camera and display the stream in the video element
+    function startCameraFeed() {
+      const video = document.getElementById('camera-feed');
+      
+      // Check for user media support
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function(stream) {
+            video.srcObject = stream;
+          })
+          .catch(function(err) {
+            console.error("Error accessing camera: ", err);
+          });
+      } else {
+        alert("Camera not supported in this browser.");
+      }
+    }
+
+    // Start the camera feed when the page loads
+    window.onload = startCameraFeed;
+
     // Simulate starting a print
     function startPrint() {
       alert('Print started!');
-      // Here you'd send a request to the 3D printer API
       document.getElementById('print-progress').textContent = '0%';
       simulateProgress();
     }
@@ -130,13 +150,11 @@
     // Simulate pausing a print
     function pausePrint() {
       alert('Print paused!');
-      // Send pause command to the printer
     }
 
     // Simulate stopping a print
     function stopPrint() {
       alert('Print stopped!');
-      // Send stop command to the printer
       document.getElementById('print-progress').textContent = '0%';
     }
 
