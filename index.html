@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Printer Web GUI with Live Camera Feed</title>
+  <title>3D Printer Web GUI with Face Recognition</title>
   <style>
     body {
       margin: 0;
@@ -75,6 +75,12 @@
       border-radius: 8px;
     }
 
+    .camera-feed canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
     .footer {
       text-align: center;
       padding: 20px;
@@ -86,7 +92,7 @@
 <body>
 
   <div class="header">
-    <h1>3D Printer Control Panel</h1>
+    <h1>3D Printer Control Panel with Face Recognition</h1>
   </div>
 
   <div class="container">
@@ -103,6 +109,7 @@
     <div class="camera-feed">
       <h2>Camera Feed</h2>
       <video id="camera-feed" autoplay playsinline></video>
+      <canvas id="overlay"></canvas>
     </div>
     
     <!-- Status Panel -->
@@ -118,26 +125,57 @@
     <p>&copy; 2024 Custom 3D Printer Web GUI</p>
   </div>
 
+  <!-- Load the face-api.js library from CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
   <script>
-    // Access the user's camera and display the stream in the video element
-    function startCameraFeed() {
+    async function startCameraFeed() {
       const video = document.getElementById('camera-feed');
-      
+      const canvas = document.getElementById('overlay');
+      const context = canvas.getContext('2d');
+
+      // Set canvas to be the same size as the video element
+      canvas.width = video.width;
+      canvas.height = video.height;
+
       // Check for user media support
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-          .then(function(stream) {
-            video.srcObject = stream;
-          })
-          .catch(function(err) {
-            console.error("Error accessing camera: ", err);
-          });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+
+        // Wait for the video and models to load
+        video.onloadedmetadata = () => {
+          video.play();
+          detectFaces(video, canvas);
+        };
       } else {
         alert("Camera not supported in this browser.");
       }
     }
 
-    // Start the camera feed when the page loads
+    async function detectFaces(video, canvas) {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models'); // Load TinyFaceDetector model
+      await faceapi.nets.faceLandmark68Net.loadFromUri('/models'); // Load face landmarks model
+
+      const displaySize = { width: video.width, height: video.height };
+      faceapi.matchDimensions(canvas, displaySize);
+
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks();
+
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+        // Clear previous drawings on canvas
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw face detections
+        faceapi.draw.drawDetections(canvas, resizedDetections);
+        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+      }, 100);
+    }
+
+    // Start the camera feed and face detection when the page loads
     window.onload = startCameraFeed;
 
     // Simulate starting a print
